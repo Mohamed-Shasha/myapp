@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css"/>
+    <link rel="stylesheet" href="../themes/A.css"/>
+    <link rel="stylesheet" href="../themes/jquery.mobile.icons.min.css"/>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    Please enter your details here
+</head>
+
+<body class="ui-mobile-viewport ui-overlay-a">
+
+<div data-role="page" id="index" data-theme="a">
+
+
+    <div role="main" class="ui-content">
+        <h1>Please login here</h1>
+
+        Username <input type="text" id="username" name="username"/>
+        Password <input type="password" id="password" name="password"/>
+        <br>
+
+        <button id="login" class="ui-btn"> login</button>
+        <br><br>
+        <a href="#register" class="ui-btn slidedown">not a user, please sign up here</a>
+
+        <div id="output"></div>
+
+        <script>
+            $("#login").click(function () {
+
+                // Get the values
+                var un = $('#username').val();
+                var pw = $('#password').val();
+
+
+                if (un == '' || pw == '') {
+                    alert("too short");
+                } else {
+
+                    // Send the data
+                    $.post("/login", {username: un, password: pw})
+                        .done(function (data) {
+                            alert(data)
+
+                            if (data.includes("customer")) {
+                                window.location = "#customer";
+                            }
+
+                            else if (data.includes("manager")) {
+                                window.location = "manager";
+                            }
+                           else if (data.includes("cook")) {
+                                window.location = "#cook";
+                            }
+                        });
+                }
+
+            });
+        </script>
+
+    </div><!-- /content -->
+
+</div><!-- /page -->
+
+<div data-role="page" id="register">
+    <div role="main" class="ui-content">
+        <p>Please enter your details here</p>
+
+        Username <input type="text" id="usernameR" name="username"/>
+        Email <input type="text" id="email" name="email"/>
+        Password <input type="password" id="passwordR" name="password"/>
+        <br>
+
+        <button id="registerbtn" class="ui-btn slidedown"> Register</button>
+
+
+        <div id="output"></div>
+
+        <script>
+            $("#registerbtn").click(function () {
+
+                // Get the values
+                var usernameR = $('#usernameR').val();
+                var passwordR = $('#passwordR').val();
+                var email = $('#email').val();
+
+                if (usernameR == '' || passwordR == '') {
+                    alert("too short");
+                } else {
+
+                    // Send the data
+                    $.post("/register", {usernameR: usernameR, passwordR: passwordR, email: email})
+                    .done(function (data){
+                        alert(data)
+                    });
+
+                    window.location = '#index';
+
+
+                }
+
+
+            });
+        </script>
+    </div><!-- /content -->
+</div>
+
+<div data-role="page" id="customer">
+    <H2>Please choose your product</H2>
+
+    <script>
+        var myCart = [];
+        var priceArray = [];
+        var total = 0;
+        var totalQty = 0;
+
+    </script>
+    <div class="ui-table-columntoggle">
+        <div class="ui-content">
+            <strong for="select-native-2">BBQ Pizza: only 10$</strong>
+            <label>Choose a quantity:</label>
+            <select class="ui-selectmenu" id="bbq_pizza_qty" name="select-native" data-mini="true">
+                <option value=""></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button id="addtocart" class="ui-btn ui-btn-active" onclick="addToCart('bbq_pizza_qty')"> Add To Cart
+            </button>
+
+        </div>
+
+        <div class="ui-content">
+            <strong>Vegetarian Pizza: only 10$</strong>
+            <label>Choose a quantity:</label>
+            <select class="ui-selectmenu" id="veg_pizza_qty" name="select-native-2" data-mini="true">
+                <option value=""></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button id="addtocart" class="ui-btn ui-btn-active" onclick="addToCart('veg_pizza_qty')"> Add To Cart
+            </button>
+
+        </div>
+
+        <div class="ui-content">
+            <strong for="select-native-2">NY Pizza: only 10$</strong>
+            <label>Choose a quantity:</label>
+            <select class="ui-selectmenu" id="ny_pizza_qty" name="select-native-2" id="select-native-2"
+                    data-mini="true">
+                <option value=""></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button id="addtocart" class="ui-btn ui-btn-active" onclick="addToCart('ny_pizza_qty')"> Add To Cart
+            </button>
+
+        </div>
+
+        <div class="ui-content">
+            <strong for="select-native-2">Hot &Spicy Pizza: only 10$</strong>
+            <label>Choose a quantity:</label>
+            <select class="ui-selectmenu" id="hot_pizza_qty" name="select-native-2" id="select-native-2"
+                    data-mini="true">
+                <option value=""></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button id="addtocart" class="ui-btn ui-btn-active" onclick="addToCart('hot_pizza_qty')"> Add To Cart
+            </button>
+
+        </div>
+        <div class="ui-content">
+            <strong for="select-native-2">Chicken Pizza: only 10$</strong>
+
+            <select class="ui-selectmenu" id="chicken_pizza_qty" name="select-native-2" id="select-native-2"
+                    data-mini="true">
+                <option value=""></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button class="ui-btn ui-btn-active" id="addtocart" onclick="addToCart('chicken_pizza_qty')"> Add To Cart
+            </button>
+
+        </div>
+    </div>
+    <script>
+        function addToCart(itemName) {
+            // finding out the name of the ITEM we are adding
+            var item = itemName;
+            console.log(item);
+
+            // dynamically find out the qty
+            var qty = $('#' + item).children("option:selected").val();
+            console.log(qty);
+
+            // search the cart and see if we already added
+            // the item. If we did, remove the old qty.
+
+            myCart.forEach(function (itemCurrent, index, array) {
+
+                if (itemCurrent.includes(item)) {
+                    console.log("Removing previous reference to " + item);
+                    myCart.pop(index);
+                    priceArray.pop(index);
+
+                }
+            });
+
+
+            // add the item to the cart
+            myCart.push(item + ' : ' + qty);
+            totalQty += parseInt(qty);
+
+            priceArray.push(qty * 10);
+
+            for (var i = 0; i < priceArray.length; i++) {
+                total += priceArray[i];
+
+                priceArray.pop(qty * 10);
+
+            }
+
+
+            alert(myCart);
+            alert("total is " + total);
+            alert(totalQty);
+
+        }
+
+    </script>
+    <br>
+    <br>
+    <button id="checkout" class="ui-btn  ui-shadow-icon ui-btn-b">Checkout</button>
+
+
+    <script>
+        $('#checkout').click(function () {
+            $('#revieworder').html((myCart + "<br><br> <strong> Total price is: </strong>" + total).toString());
+
+            window.location = "#checkoutpage";
+        });
+
+    </script>
+</div>
+
+
+<div data-role="page" id="checkoutpage">
+    <br>
+    <strong>review your order:</strong>
+    <br>
+    <br>
+    <div class="ui-body ui-table" id="revieworder"></div>
+
+    <br>
+    <br>
+    <button class="ui-btn ui-btn-active" id="placeorder">Place order</button>
+    <script>
+        $('#placeorder').click(function () {
+            $.post("/placedorder", {cart: myCart.toString(), qty: totalQty, total: total});
+            window.location = "#received";
+        });
+
+    </script>
+</div>
+
+<div data-role="page" id="received" class="ui-content">
+
+    <strong>Thanks for ordering your ticket number is:</strong>
+    <br>
+    <br>
+
+    <p id="ticket" class="ui-flipswitch-active ui-btn">
+        <script>
+            function makeid() {
+                var text = "";
+                var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!£$%^&*";
+
+                for (var i = 0; i < 10; i++)
+                    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+                return text;
+            }
+
+            $('#ticket').html(makeid().toString());
+
+        </script>
+    </p>
+    </strong>
+</div>
+
+
+<div data-role="page" id="cook">
+
+        <H1>the cook page</H1>
+        Chicken <input type="text" id="chicken" name="chicken"/>
+        <button id="updateProduct" onclick="updateProduct('chicken')">Update Product Quantity</button>
+        <br>
+        <br>
+
+        Ham <input type="text" id="ham" name="ham"/>
+        <button id="updateProduct" onclick="updateProduct('ham')">Update Product Quantity</button>
+
+    <script>
+
+
+        function updateProduct(item) {
+            var itemGot =item;
+            var itemval = $('#'+item).val();
+
+
+
+            if (isNaN(itemval)) {
+                alert("error wrong type!");
+                var itemval = $('#'+item).val('');
+            }
+
+            else {
+                let itemNum ;
+                if (itemGot ==='chicken') {
+                    itemNum = 1;
+
+                }
+                else if (itemGot === 'ham') {
+                    itemNum = 2;
+
+                }
+
+                console.log(itemval);
+                console.log(itemGot);
+                $('#updateProduct').click(function () {
+                    $.post("/update", {item: itemGot, qtyUpdate: itemval, itemID: itemNum})
+
+                });
+            }
+
+        }
+    </script>
+</div>
+
+
+</body>
+</html>

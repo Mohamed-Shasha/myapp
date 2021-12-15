@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css"/>
+<link rel="stylesheet" href="../themes/A.css"/>
+<link rel="stylesheet" href="../themes/jquery.mobile.icons.min.css"/>
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<head>
+
+</head>
+<body>
+<div class="table-data">
+    <h2 class="ui-body">Manager Area: total orders and revenue</h2>
+    <table class="ui-table ui-page-active">
+        <tr>
+
+            <th>total order quantity</th>
+            <th>total revenue</th>
+
+        </tr>
+
+        <%
+        userData.forEach(function(data){
+            var qtySum = 0 ;
+            var priceSum= 0;
+            qtySum =[data.qty];
+            priceSum= [data.price];
+
+
+        %>
+        <tr>
+
+            <td><%=qtySum %></td>
+            <td><%=priceSum %></td>
+
+
+        </tr>
+
+        <% }
+        ) %>
+
+    </table>
+</div>
+</body>
+</html>
