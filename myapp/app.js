@@ -32,6 +32,7 @@ app.use('/manager', indexRouter2);
 app.use('/users', usersRouter);
 var SqlString = require('sqlstring');
 var sanitizeHtml = require('sanitize-html');
+var jsec = require('jsec');
 var session = require('express-session');
 var crypto = require('crypto');
 /**
@@ -90,6 +91,8 @@ app.post('/login', function (req, res) {
     var user_password = req.body.password;
     var email = req.body.email;
     var errorMessage = '';
+    username =jsec(sanitizeHtml(username));
+    user_password = jsec(sanitizeHtml(user_password));
 
     if (username.length < 6) {
 
@@ -106,7 +109,7 @@ app.post('/login', function (req, res) {
 
     // This is the actual SQL query part
     if (errorMessage.length <= 0) {
-        db.query('select * from login where username=? ', [username], function (error, result, fields) {
+        db.query('select * from login where username=? ', [SqlString.escape(username)], function (error, result, fields) {
             db.on('error', function (err) {
                 console.log('MySQL Error', err);
             });
@@ -115,7 +118,7 @@ app.post('/login', function (req, res) {
                 var encrypted_password = result[0].password;
                 var hashed_password = checkHashedPassword(user_password, salt).passwordHash;
                 if (encrypted_password === hashed_password) {
-                    res.end(JSON.stringify("Welcome"+result[0].acctype));
+                    res.end(JSON.stringify("Welcome" + result[0].acctype));
                 } else {
                     res.end(JSON.stringify('wrong password'));
                 }
@@ -141,6 +144,9 @@ app.post('/register', function (req, res) {
     var passwordHashed = hashed.passwordHash;
     var salt = hashed.salt
     var email = req.body.email;
+    email = jsec(sanitizeHtml(email));
+    user_password = jsec(sanitizeHtml(user_password));
+    usernameR = jsec(sanitizeHtml(usernameR));
     // Print it out to the NodeJS console just to see if we got the variable.
     var errorMessage = '';
 
@@ -164,16 +170,17 @@ app.post('/register', function (req, res) {
     }
 
     if (errorMessage.length <= 0) {
-        db.query('SELECT * FROM project where email=?', [email], function (err, result, fields) {
+        db.query('SELECT * FROM project where email=?', [SqlString.escape(email)], function (err, result, fields) {
             db.on('error', function (err) {
                 console.log('mySQL error', err);
             });
 
 
+
             if (result && result.length) {
                 res.JSON('user already exist');
             } else {
-                var sql = "INSERT INTO login (username, password ,email, salt )Values('" + usernameR + "','" + passwordHashed + "','" + email + "','" + salt + "')";
+                var sql = "INSERT INTO login (username, password ,email, salt )Values('" + SqlString.escape(usernameR) + "','" + SqlString.escape(passwordHashed) + "','" + SqlString.escape(email) + "','" + salt + "')";
                 db.query(sql, function (error, results, fields) {
                     if (error) throw error;
 
