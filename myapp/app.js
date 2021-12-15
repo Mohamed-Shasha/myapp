@@ -32,9 +32,12 @@ app.use('/manager', indexRouter2);
 app.use('/users', usersRouter);
 var SqlString = require('sqlstring');
 var sanitizeHtml = require('sanitize-html');
-var jsec = require('jsec');
+var sec = require('jsesc');
 var session = require('express-session');
 var crypto = require('crypto');
+const {NULL} = require("mysql/lib/protocol/constants/types");
+const mysql = require("mysql");
+const {compareSync} = require("bcrypt");
 /**
  * generates random string of characters i.e salt
  * @function
@@ -91,8 +94,8 @@ app.post('/login', function (req, res) {
     var user_password = req.body.password;
     var email = req.body.email;
     var errorMessage = '';
-    username =jsec(sanitizeHtml(username));
-    user_password = jsec(sanitizeHtml(user_password));
+    username =sec(sanitizeHtml(username));
+    user_password = sec(sanitizeHtml(user_password));
 
     if (username.length < 6) {
 
@@ -109,7 +112,9 @@ app.post('/login', function (req, res) {
 
     // This is the actual SQL query part
     if (errorMessage.length <= 0) {
-        db.query('select * from login where username=? ', [SqlString.escape(username)], function (error, result, fields) {
+        sql = SqlString.format('select * from login where username=?', [username]);
+        db.query(sql, function (error, result, fields) {
+            console.log(sql);
             db.on('error', function (err) {
                 console.log('MySQL Error', err);
             });
@@ -144,9 +149,9 @@ app.post('/register', function (req, res) {
     var passwordHashed = hashed.passwordHash;
     var salt = hashed.salt
     var email = req.body.email;
-    email = jsec(sanitizeHtml(email));
-    user_password = jsec(sanitizeHtml(user_password));
-    usernameR = jsec(sanitizeHtml(usernameR));
+    email = sec(sanitizeHtml(email));
+    user_password = sec(sanitizeHtml(user_password));
+    usernameR = sec(sanitizeHtml(usernameR));
     // Print it out to the NodeJS console just to see if we got the variable.
     var errorMessage = '';
 
@@ -170,7 +175,8 @@ app.post('/register', function (req, res) {
     }
 
     if (errorMessage.length <= 0) {
-        db.query('SELECT * FROM project where email=?', [SqlString.escape(email)], function (err, result, fields) {
+
+        db.query(SqlString.format('SELECT * FROM project where email=?', [email]), function (err, result, fields) {
             db.on('error', function (err) {
                 console.log('mySQL error', err);
             });
@@ -180,7 +186,7 @@ app.post('/register', function (req, res) {
             if (result && result.length) {
                 res.JSON('user already exist');
             } else {
-                var sql = "INSERT INTO login (username, password ,email, salt )Values('" + SqlString.escape(usernameR) + "','" + SqlString.escape(passwordHashed) + "','" + SqlString.escape(email) + "','" + salt + "')";
+                var sql =SqlString.format( "INSERT INTO login (username, password ,email, salt )Values('" +usernameR + "','" + passwordHashed + "','" +email + "','" + salt + "')");
                 db.query(sql, function (error, results, fields) {
                     if (error) throw error;
 
@@ -202,11 +208,13 @@ app.post('/placedorder', function (req, res) {
     var cartR = req.body.cart;
     var qtyR = req.body.qty;
     var totalR = req.body.total;
+
+
     // Print it out to the NodeJS console just to see if we got the variable.
 
 
     // This is the actual SQL query part
-    var sql = "INSERT INTO `db`.`orders` (`order`, `qty`, `price`) VALUES ('" + cartR + "','" + qtyR + "','" + totalR + "')";
+    var sql = SqlString.format("INSERT INTO `db`.`orders` (`order`, `qty`, `price`) VALUES ('" + cartR + "','" + qtyR + "','" + totalR + "')");
     db.query(sql, function (error, results, fields) {
             if (error) throw error;
 
@@ -226,7 +234,7 @@ app.post('/update', function (req, res) {
 
 
     // This is the actual SQL query part
-    db.query('update products  SET  qty=? where id=?', [qty, id], function (error, results, fields) {
+    db.query(SqlString.format('update products  SET  qty=? where id=?', [qty, id]), function (error, results, fields) {
             if (error) throw error;
 
         }
